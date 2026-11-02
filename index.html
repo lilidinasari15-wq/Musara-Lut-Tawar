@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Bacaan Al-Qur'an Kepala Sekolah - Kec. Lut Tawar</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        emerald: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b',
+                            950: '#022c22',
+                        },
+                        amber: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        arabic: ['Amiri', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- ExcelJS & FileSaver for Excel Export with Embedded Images -->
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .arabic-font {
+            font-family: 'Amiri', serif;
+        }
+        /* Custom Scrollbar for Spreadsheet View */
+        .spreadsheet-container::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+        .spreadsheet-container::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .spreadsheet-container::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .spreadsheet-container::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        /* Print Stylesheet */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            body {
+                background: white;
+                color: black;
+            }
+            .spreadsheet-table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+            }
+            .spreadsheet-table th, .spreadsheet-table td {
+                border: 1px solid #000 !important;
+                padding: 6px !important;
+                font-size: 11px !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 flex flex-col">
+
+    <!-- HEADER UTAMA ISLAMI -->
+    <header class="bg-gradient-to-r from-emerald-950 via-emerald-900 to-emerald-950 text-white shadow-lg border-b-4 border-amber-500 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-emerald-800 border-2 border-amber-400 rounded-2xl flex items-center justify-center text-amber-300 text-2xl shadow-inner">
+                        📖
+                    </div>
+                    <div>
+                        <h1 class="text-xl md:text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+                            Laporan Bacaan Al-Qur'an Kepala Sekolah
+                        </h1>
+                        <p class="text-emerald-200 text-xs md:text-sm font-medium">
+                            <i class="fa-solid fa-location-dot text-amber-400 mr-1"></i> Kecamatan Lut Tawar, Kabupaten Aceh Tengah
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Status User & Tombol Akses -->
+                <div class="flex items-center justify-between md:justify-end gap-3 pt-2 md:pt-0 border-t md:border-t-0 border-emerald-800/60">
+                    <div id="userBadge" class="hidden flex items-center gap-2 bg-emerald-900/80 px-3 py-1.5 rounded-xl border border-emerald-700/60 shadow-inner">
+                        <i class="fa-solid fa-school text-amber-400 text-sm"></i>
+                        <div class="text-left">
+                            <div id="loggedSchoolName" class="text-xs font-semibold text-emerald-100">SDN 1 Lut Tawar</div>
+                            <div id="loggedRole" class="text-[10px] text-amber-300">Kepala Sekolah</div>
+                        </div>
+                    </div>
+                    <button id="btnPinInfo" onclick="openPinModal()" class="px-3 py-1.5 bg-emerald-800 hover:bg-emerald-700 text-amber-300 border border-amber-500/40 rounded-xl text-xs font-medium transition flex items-center gap-1.5 shadow-sm">
+                        <i class="fa-solid fa-key"></i> Info PIN Demo
+                    </button>
+                    <button id="btnLogout" onclick="logout()" class="hidden px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-medium transition flex items-center gap-1.5 shadow">
+                        <i class="fa-solid fa-right-from-bracket"></i> Keluar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- BANNER TOAST NOTIFIKASI -->
+    <div id="toastContainer" class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-md w-full px-4 pointer-events-none"></div>
+
+    <!-- WRAPPER UTAMA -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-6">
+
+        <!-- SCREEN LOGIN / PILIH SEKOLAH -->
+        <div id="loginScreen" class="max-w-md mx-auto my-8 bg-white rounded-3xl shadow-xl border border-emerald-100 overflow-hidden no-print">
+            <div class="bg-gradient-to-br from-emerald-900 via-emerald-800 to-emerald-900 p-6 text-center text-white relative">
+                <div class="inline-block p-3 bg-white/10 rounded-2xl mb-2 shadow-inner">
+                    <i class="fa-solid fa-book-quran text-3xl text-amber-300"></i>
+                </div>
+                <h2 class="text-xl font-bold">Masuk Laporan Al-Qur'an</h2>
+                <p class="text-xs text-emerald-100 mt-1">Pilih Sekolah & Masukkan Kode Akses PIN</p>
+            </div>
+            
+            <form id="loginForm" onsubmit="handleLogin(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Sekolah</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                            <i class="fa-solid fa-building-columns text-sm"></i>
+                        </span>
+                        <select id="loginSchoolSelect" class="w-full pl-9 pr-3 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" required>
+                            <option value="" disabled selected>-- Pilih Sekolah Anda --</option>
+                            <option value="SDN 1 Lut Tawar">SDN 1 Lut Tawar</option>
+                            <option value="SDN 2 Lut Tawar">SDN 2 Lut Tawar</option>
+                            <option value="SDN 3 Lut Tawar">SDN 3 Lut Tawar</option>
+                            <option value="SDN 4 Lut Tawar">SDN 4 Lut Tawar</option>
+                            <option value="SDN 5 Lut Tawar">SDN 5 Lut Tawar</option>
+                            <option value="SDN 6 Lut Tawar">SDN 6 Lut Tawar</option>
+                            <option value="SDN 7 Lut Tawar">SDN 7 Lut Tawar</option>
+                            <option value="SDN 8 Lut Tawar">SDN 8 Lut Tawar</option>
+                            <option value="SDN 9 Lut Tawar">SDN 9 Lut Tawar</option>
+                            <option value="SDN 10 Lut Tawar">SDN 10 Lut Tawar</option>
+                            <option value="SD Yayasan Pendidikan Islam Lut Tawar">SD Yayasan Pendidikan Islam (YPI Lut Tawar)</option>
+                            <option value="ADMIN_KECAMATAN" class="font-bold text-emerald-800">⭐ Koordinator / Admin Kecamatan</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Kode Akses / PIN Sekolah</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                            <i class="fa-solid fa-lock text-sm"></i>
+                        </span>
+                        <input type="password" id="loginPin" placeholder="Masukkan Kode PIN (Default: 1234)" maxlength="6" class="w-full pl-9 pr-10 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" required>
+                        <button type="button" onclick="togglePinVisibility()" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600">
+                            <i id="pinEyeIcon" class="fa-solid fa-eye text-xs"></i>
+                        </button>
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-1 flex justify-between items-center">
+                        <span>PIN standar: <strong class="text-emerald-700">1234</strong></span>
+                        <button type="button" onclick="openPinModal()" class="text-emerald-600 hover:underline">Lihat Semua PIN</button>
+                    </p>
+                </div>
+
+                <button type="submit" class="w-full py-3 bg-gradient-to-r from-emerald-800 to-emerald-700 hover:from-emerald-900 hover:to-emerald-800 text-white font-semibold rounded-xl shadow-md shadow-emerald-900/20 transition duration-200 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-right-to-bracket"></i> Masuk Aplikasi Laporan
+                </button>
+            </form>
+        </div>
+
+        <!-- DASHBOARD APLIKASI (DISPLAY APABILA SUDAH LOGIN) -->
+        <div id="appDashboard" class="hidden space-y-6">
+
+            <!-- STATISTIK RINGKASAN CARD -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 no-print">
+                <div class="bg-white p-4 rounded-2xl border border-emerald-100 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-slate-500">Total Laporan Bulan Ini</p>
+                        <h3 id="statTotalBulan" class="text-2xl font-bold text-emerald-800 mt-0.5">0</h3>
+                        <p class="text-[10px] text-emerald-600 mt-0.5"><i class="fa-solid fa-calendar-check mr-1"></i>Rekap Terbaca</p>
+                    </div>
+                    <div class="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 text-lg">
+                        <i class="fa-solid fa-book-open"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-2xl border border-emerald-100 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-slate-500">Laporan Minggu Ini</p>
+                        <h3 id="statTotalMinggu" class="text-2xl font-bold text-amber-600 mt-0.5">0</h3>
+                        <p class="text-[10px] text-amber-600 mt-0.5"><i class="fa-solid fa-clock mr-1"></i>Pekan Berjalan</p>
+                    </div>
+                    <div class="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600 text-lg">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-2xl border border-emerald-100 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-slate-500">Sekolah Aktif</p>
+                        <h3 id="statSekolahAktif" class="text-2xl font-bold text-emerald-800 mt-0.5">0 / 11</h3>
+                        <p class="text-[10px] text-slate-500 mt-0.5"><i class="fa-solid fa-school-circle-check mr-1"></i>Telah Melapor</p>
+                    </div>
+                    <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 text-lg">
+                        <i class="fa-solid fa-users text-blue-600"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-2xl border border-emerald-100 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-slate-500">Keaktifan Kecamatan</p>
+                        <h3 id="statPersentase" class="text-2xl font-bold text-emerald-700 mt-0.5">0%</h3>
+                        <p class="text-[10px] text-emerald-600 mt-0.5"><i class="fa-solid fa-bullseye mr-1"></i>Partisipasi Total</p>
+                    </div>
+                    <div class="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center text-purple-600 text-lg">
+                        <i class="fa-solid fa-award"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TABS NAVIGASI UTAMA -->
+            <div class="flex border-b border-slate-200 space-x-2 md:space-x-4 no-print overflow-x-auto pb-1">
+                <button id="tabBtnRekap" onclick="switchTab('rekap')" class="tab-btn px-4 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2 transition bg-emerald-800 text-white shadow-md">
+                    <i class="fa-solid fa-table-cells"></i> Rekapitulasi Spreadsheet
+                </button>
+                <button id="tabBtnInput" onclick="switchTab('input')" class="tab-btn px-4 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2 transition bg-white text-slate-600 hover:bg-slate-100">
+                    <i class="fa-solid fa-pen-to-square"></i> Input Laporan Baru
+                </button>
+                <button id="tabBtnSekolah" onclick="switchTab('sekolah')" class="tab-btn px-4 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2 transition bg-white text-slate-600 hover:bg-slate-100">
+                    <i class="fa-solid fa-list-check"></i> Status 11 Sekolah
+                </button>
+            </div>
+
+            <!-- VIEW 1: TAB REKAPITULASI SPREADSHEET -->
+            <div id="viewRekap" class="space-y-4">
+                <!-- PANEL FILTER & ACTION BUTTONS -->
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3 no-print">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                        <!-- Filter Sekolah -->
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-500 mb-1">Filter Sekolah</label>
+                            <select id="filterSekolah" onchange="applyFilters()" class="w-full text-xs p-2 bg-slate-50 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="ALL">Semua Sekolah (11 Sekolah)</option>
+                                <option value="SDN 1 Lut Tawar">SDN 1 Lut Tawar</option>
+                                <option value="SDN 2 Lut Tawar">SDN 2 Lut Tawar</option>
+                                <option value="SDN 3 Lut Tawar">SDN 3 Lut Tawar</option>
+                                <option value="SDN 4 Lut Tawar">SDN 4 Lut Tawar</option>
+                                <option value="SDN 5 Lut Tawar">SDN 5 Lut Tawar</option>
+                                <option value="SDN 6 Lut Tawar">SDN 6 Lut Tawar</option>
+                                <option value="SDN 7 Lut Tawar">SDN 7 Lut Tawar</option>
+                                <option value="SDN 8 Lut Tawar">SDN 8 Lut Tawar</option>
+                                <option value="SDN 9 Lut Tawar">SDN 9 Lut Tawar</option>
+                                <option value="SDN 10 Lut Tawar">SDN 10 Lut Tawar</option>
+                                <option value="SD Yayasan Pendidikan Islam Lut Tawar">SD YPI Lut Tawar</option>
+                            </select>
+                        </div>
+
+                        <!-- Filter Bulan -->
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-500 mb-1">Filter Bulan</label>
+                            <select id="filterBulan" onchange="applyFilters()" class="w-full text-xs p-2 bg-slate-50 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="ALL">Semua Bulan (Tahun Berjalan)</option>
+                                <option value="1">Januari</option>
+                                <option value="2">Februari</option>
+                                <option value="3">Maret</option>
+                                <option value="4">April</option>
+                                <option value="5">Mei</option>
+                                <option value="6">Juni</option>
+                                <option value="7">Juli</option>
+                                <option value="8">Agustus</option>
+                                <option value="9">September</option>
+                                <option value="10">Oktober</option>
+                                <option value="11">November</option>
+                                <option value="12">Desember</option>
+                            </select>
+                        </div>
+
+                        <!-- Filter Minggu -->
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-500 mb-1">Filter Minggu (Pekan)</label>
+                            <select id="filterMinggu" onchange="applyFilters()" class="w-full text-xs p-2 bg-slate-50 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="ALL">Semua Minggu</option>
+                                <option value="1">Minggu Ke-1</option>
+                                <option value="2">Minggu Ke-2</option>
+                                <option value="3">Minggu Ke-3</option>
+                                <option value="4">Minggu Ke-4</option>
+                                <option value="5">Minggu Ke-5</option>
+                            </select>
+                        </div>
+
+                        <!-- Search Box -->
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-500 mb-1">Cari Pencarian</label>
+                            <div class="relative">
+                                <input type="text" id="searchInput" onkeyup="applyFilters()" placeholder="Cari Kepala Sekolah / Surah..." class="w-full text-xs p-2 pl-7 bg-slate-50 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500">
+                                <i class="fa-solid fa-search absolute left-2.5 top-2.5 text-slate-400 text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tombol Aksi Ekspor -->
+                    <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100">
+                        <div class="text-xs text-slate-500">
+                            Menampilkan <span id="filteredCount" class="font-bold text-emerald-700">0</span> laporan
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button id="btnExportExcel" onclick="exportToExcel()" class="px-3 py-1.5 bg-emerald-800 hover:bg-emerald-900 text-white rounded-lg text-xs font-medium transition flex items-center gap-1.5 shadow-sm">
+                                <i class="fa-solid fa-file-excel text-emerald-200"></i> Unduh Excel (.xlsx dengan Foto)
+                            </button>
+                            <button onclick="exportToCSV()" class="px-3 py-1.5 bg-teal-700 hover:bg-teal-800 text-white rounded-lg text-xs font-medium transition flex items-center gap-1.5 shadow-sm">
+                                <i class="fa-solid fa-file-csv"></i> Ekspor CSV
+                            </button>
+                            <button onclick="printReport()" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-800 text-white rounded-lg text-xs font-medium transition flex items-center gap-1.5 shadow-sm">
+                                <i class="fa-solid fa-print"></i> Cetak Rekap PDF
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAMPILAN SPREADSHEET TABLE -->
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="spreadsheet-container overflow-x-auto max-h-[600px]">
+                        <table class="spreadsheet-table w-full text-left text-xs border-collapse">
+                            <thead class="bg-emerald-950 text-emerald-100 sticky top-0 z-10 shadow-sm">
+                                <tr>
+                                    <th class="p-3 font-semibold border-b border-emerald-800 w-12 text-center">No</th>
+                                    <th class="p-3 font-semibold border-b border-emerald-800 min-w-[100px]">Tanggal Baca</th>
+                                    <th class="p-3 font-semibold border-b border-emerald-800 min-w-[150px]">Nama Sekolah</th>
+                                    <th class="p-3 font-semibold border-b border-emerald-800 min-w-[150px]">Nama Kepala Sekolah</th>
+                                    <th class="p-3 font-semibold border-b border-emerald-800 min-w-[180px]">Progress Bacaan</th>
+                                    <th class="p-3 font-semibold border-b border-emerald-800 min-w-[200px]">Catatan / Refleksi</th>
+                                    <th class="p-3 font-semibold border-b border-emerald-800 min-w-[110px] text-center">Dokumentasi</th>
+                                    <th class="p-3 font-semibold border-b border-emerald-800 min-w-[130px]">Waktu Input</th>
+                                    <th class="p-3 font-semibold border-b border-emerald-800 w-20 text-center no-print">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="spreadsheetBody" class="divide-y divide-slate-200 bg-white">
+                                <tr>
+                                    <td colspan="9" class="p-8 text-center text-slate-400">
+                                        <i class="fa-solid fa-spinner fa-spin text-2xl mb-2 text-emerald-600 block"></i>
+                                        Memuat data rekapitulasi bacaan...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 2: TAB INPUT LAPORAN BACAAN BARU -->
+            <div id="viewInput" class="hidden max-w-2xl mx-auto">
+                <div class="bg-white rounded-3xl border border-emerald-100 shadow-md overflow-hidden">
+                    <div class="bg-gradient-to-r from-emerald-900 to-emerald-800 p-5 text-white flex items-center justify-between">
+                        <div>
+                            <h2 class="font-bold text-lg flex items-center gap-2">
+                                <i class="fa-solid fa-file-pen text-amber-300"></i> Form Laporan Bacaan Al-Qur'an
+                            </h2>
+                            <p class="text-xs text-emerald-100 mt-0.5">Silakan isi perkembangan bacaan Kepala Sekolah secara rutin</p>
+                        </div>
+                        <span id="formSchoolBadge" class="px-3 py-1 bg-amber-500 text-emerald-950 font-bold rounded-full text-xs shadow">
+                            SDN 1 Lut Tawar
+                        </span>
+                    </div>
+
+                    <form id="quranReportForm" onsubmit="submitReport(event)" class="p-6 space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Tanggal Bacaan -->
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Tanggal Membaca <span class="text-rose-500">*</span></label>
+                                <input type="date" id="inputTanggal" class="w-full text-xs p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none" required>
+                            </div>
+
+                            <!-- Waktu / Sesi Bacaan -->
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Waktu Bacaan</label>
+                                <select id="inputWaktuSesi" class="w-full text-xs p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none">
+                                    <option value="Ba'da Subuh">Ba'da Subuh</option>
+                                    <option value="Ba'da Dzuhur">Ba'da Dzuhur</option>
+                                    <option value="Ba'da Ashar">Ba'da Ashar</option>
+                                    <option value="Ba'da Maghrib">Ba'da Maghrib</option>
+                                    <option value="Ba'da Isya / Malam">Ba'da Isya / Malam</option>
+                                    <option value="Waktu Dhuha / Istirahat">Waktu Dhuha / Istirahat</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Nama Kepala Sekolah -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Kepala Sekolah / Pelapor <span class="text-rose-500">*</span></label>
+                            <input type="text" id="inputNamaKepala" placeholder="Masukkan nama lengkap & gelar..." class="w-full text-xs p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none" required>
+                        </div>
+
+                        <!-- Pilih Surah & Range Ayat -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100">
+                            <div>
+                                <label class="block text-xs font-semibold text-emerald-900 mb-1">Pilih Surah Al-Qur'an <span class="text-rose-500">*</span></label>
+                                <select id="inputSurah" class="w-full text-xs p-2.5 bg-white border border-emerald-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none" required>
+                                    <option value="" disabled selected>-- Pilih Surah --</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-emerald-900 mb-1">Detail Ayat / Juz / Halaman <span class="text-rose-500">*</span></label>
+                                <input type="text" id="inputAyatDetail" placeholder="Misal: Ayat 1 - 255 ATAU Juz 15 Hal 280" class="w-full text-xs p-2.5 bg-white border border-emerald-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none" required>
+                            </div>
+                        </div>
+
+                        <!-- Catatan / Hikmah Bacaan -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Catatan / Refleksi Bacaan (Opsional)</label>
+                            <textarea id="inputCatatan" rows="2" placeholder="Tuliskan catatan singkat atau ayat terpilih yang memberi kesan..." class="w-full text-xs p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none"></textarea>
+                        </div>
+
+                        <!-- Upload Foto Dokumentasi -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Foto Dokumentasi Kegiatan <span class="text-rose-500">*</span></label>
+                            <div class="border-2 border-dashed border-emerald-300 bg-emerald-50/30 rounded-2xl p-4 text-center relative hover:bg-emerald-50 transition cursor-pointer">
+                                <input type="file" id="inputFoto" accept="image/*" onchange="previewSelectedImage(event)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required>
+                                <div id="photoPlaceholder" class="space-y-1">
+                                    <i class="fa-solid fa-camera text-2xl text-emerald-600"></i>
+                                    <p class="text-xs font-medium text-slate-700">Klik / Ketuk untuk Ambil Foto atau Unggah</p>
+                                    <p class="text-[10px] text-slate-400">Format: JPG, PNG, WEBP (Otomatis dikompres secara aman)</p>
+                                </div>
+                                <div id="photoPreviewContainer" class="hidden flex flex-col items-center gap-2">
+                                    <img id="photoPreviewImg" src="" alt="Preview Dokumentasi" class="h-32 object-cover rounded-lg border border-emerald-500 shadow">
+                                    <span class="text-xs font-semibold text-emerald-700"><i class="fa-solid fa-circle-check"></i> Foto Siap Diunggah</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="pt-2">
+                            <button type="submit" id="btnSubmitForm" class="w-full py-3 bg-gradient-to-r from-emerald-800 to-emerald-700 hover:from-emerald-900 hover:to-emerald-800 text-white font-bold rounded-xl shadow-md transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-paper-plane"></i> Simpan Laporan Bacaan Online
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- VIEW 3: TAB STATUS KEAKTIFAN 11 SEKOLAH -->
+            <div id="viewSekolah" class="hidden space-y-4">
+                <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
+                    <h3 class="text-base font-bold text-slate-800 mb-1 flex items-center gap-2">
+                        <i class="fa-solid fa-school-flag text-emerald-700"></i> Rekap Status 11 Sekolah Kecamatan Lut Tawar
+                    </h3>
+                    <p class="text-xs text-slate-500 mb-4">Pantau tingkat partisipasi dan jumlah pengiriman laporan masing-masing sekolah bulan ini.</p>
+
+                    <div id="schoolGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                        <!-- Card Sekolah akan di-render di sini via JS -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 py-4 mt-auto text-center text-xs text-slate-500 no-print">
+        <p>© 2026 Laporan Bacaan Al-Qur'an Kepala Sekolah Se-Kecamatan Lut Tawar. Kabupaten Aceh Tengah.</p>
+    </footer>
+
+    <!-- MODAL LIGHTBOX FOTO DOKUMENTASI -->
+    <div id="lightboxModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 no-print" onclick="closeLightbox()">
+        <div class="relative max-w-3xl w-full bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-700" onclick="event.stopPropagation()">
+            <div class="bg-slate-900 px-4 py-3 text-white flex items-center justify-between">
+                <div>
+                    <h4 id="lightboxSchool" class="font-bold text-sm text-amber-400">SDN 1 Lut Tawar</h4>
+                    <p id="lightboxDetails" class="text-xs text-slate-300">Surah Al-Baqarah (Ayat 1-255)</p>
+                </div>
+                <button onclick="closeLightbox()" class="text-slate-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            <div class="p-2 bg-slate-950 flex justify-center items-center max-h-[75vh]">
+                <img id="lightboxImg" src="" alt="Dokumentasi Bacaan Full" class="max-h-[70vh] object-contain rounded">
+            </div>
+            <div class="p-3 bg-slate-100 flex justify-between items-center text-xs text-slate-600 border-t">
+                <span id="lightboxReporter"><i class="fa-solid fa-user-pen mr-1"></i> Kepsek</span>
+                <span id="lightboxDate"><i class="fa-solid fa-calendar mr-1"></i> Tanggal</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL INFO DAFTAR PIN KODE AKSES -->
+    <div id="pinModal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 no-print" onclick="closePinModal()">
+        <div class="relative max-w-md w-full bg-white rounded-3xl overflow-hidden shadow-2xl border border-emerald-100" onclick="event.stopPropagation()">
+            <div class="bg-emerald-950 p-4 text-white flex items-center justify-between">
+                <h4 class="font-bold text-sm flex items-center gap-2"><i class="fa-solid fa-key text-amber-400"></i> Daftar Kode PIN Sekolah</h4>
+                <button onclick="closePinModal()" class="text-emerald-200 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-4 max-h-[60vh] overflow-y-auto space-y-2 text-xs">
+                <p class="text-slate-600 mb-2">Gunakan PIN berikut atau PIN default universal <strong class="text-emerald-700">1234</strong> untuk masuk:</p>
+                <div class="divide-y divide-slate-100 border rounded-2xl overflow-hidden">
+                    <div class="p-2 flex justify-between bg-emerald-50">
+                        <span class="font-medium text-emerald-900">SDN 1 Lut Tawar</span>
+                        <code class="font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">1001</code>
+                    </div>
+                    <div class="p-2 flex justify-between">
+                        <span class="font-medium">SDN 2 Lut Tawar</span>
+                        <code class="font-bold text-emerald-700 bg-slate-100 px-2 py-0.5 rounded">1002</code>
+                    </div>
+                    <div class="p-2 flex justify-between bg-emerald-50">
+                        <span class="font-medium text-emerald-900">SDN 3 Lut Tawar</span>
+                        <code class="font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">1003</code>
+                    </div>
+                    <div class="p-2 flex justify-between">
+                        <span class="font-medium">SDN 4 Lut Tawar</span>
+                        <code class="font-bold text-emerald-700 bg-slate-100 px-2 py-0.5 rounded">1004</code>
+                    </div>
+                    <div class="p-2 flex justify-between bg-emerald-50">
+                        <span class="font-medium text-emerald-900">SDN 5 Lut Tawar</span>
+                        <code class="font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">1005</code>
+                    </div>
+                    <div class="p-2 flex justify-between">
+                        <span class="font-medium">SDN 6 Lut Tawar</span>
+                        <code class="font-bold text-emerald-700 bg-slate-100 px-2 py-0.5 rounded">1006</code>
+                    </div>
+                    <div class="p-2 flex justify-between bg-emerald-50">
+                        <span class="font-medium text-emerald-900">SDN 7 Lut Tawar</span>
+                        <code class="font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">1007</code>
+                    </div>
+                    <div class="p-2 flex justify-between">
+                        <span class="font-medium">SDN 8 Lut Tawar</span>
+                        <code class="font-bold text-emerald-700 bg-slate-100 px-2 py-0.5 rounded">1008</code>
+                    </div>
+                    <div class="p-2 flex justify-between bg-emerald-50">
+                        <span class="font-medium text-emerald-900">SDN 9 Lut Tawar</span>
+                        <code class="font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">1009</code>
+                    </div>
+                    <div class="p-2 flex justify-between">
+                        <span class="font-medium">SDN 10 Lut Tawar</span>
+                        <code class="font-bold text-emerald-700 bg-slate-100 px-2 py-0.5 rounded">1010</code>
+                    </div>
+                    <div class="p-2 flex justify-between bg-emerald-50">
+                        <span class="font-medium text-emerald-900">SD YPI Lut Tawar</span>
+                        <code class="font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">1011</code>
+                    </div>
+                    <div class="p-2 flex justify-between bg-amber-100 text-amber-900 border-t border-amber-300">
+                        <span class="font-bold">⭐ Admin Kecamatan</span>
+                        <code class="font-bold text-amber-900 bg-amber-200 px-2 py-0.5 rounded">9999</code>
+                    </div>
+                </div>
+            </div>
+            <div class="p-3 bg-slate-50 border-t text-right">
+                <button onclick="closePinModal()" class="px-4 py-1.5 bg-emerald-800 text-white rounded-xl text-xs font-semibold">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CUSTOM KONFIRMASI HAPUS -->
+    <div id="deleteConfirmModal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 no-print">
+        <div class="relative max-w-sm w-full bg-white rounded-3xl p-6 text-center shadow-2xl border border-slate-100">
+            <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl">
+                <i class="fa-solid fa-trash-can"></i>
+            </div>
+            <h4 class="font-bold text-base text-slate-800 mb-1">Hapus Laporan Bacaan?</h4>
+            <p class="text-xs text-slate-500 mb-6">Tindakan ini tidak dapat dibatalkan. Laporan akan terhapus dari database online.</p>
+            <div class="flex gap-2">
+                <button onclick="closeDeleteModal()" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition">
+                    Batal
+                </button>
+                <button id="btnConfirmDeleteAction" class="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold transition">
+                    Ya, Hapus
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- FIREBASE MODULE & LOGIKA APLIKASI -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // CONFIG & STATE MANAGEMENT
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'lut-tawar-quran-app';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' 
+            ? JSON.parse(__firebase_config) 
+            : {
+                apiKey: "AIzaSyDemoConfigKeyForTestingOnly1234",
+                authDomain: "demo-quran-app.firebaseapp.com",
+                projectId: "demo-quran-app",
+                storageBucket: "demo-quran-app.appspot.com",
+                messagingSenderId: "1234567890",
+                appId: "1:1234567890:web:abcdef123456"
+            };
+
+        let app, db, auth;
+        let currentUserSchool = null;
+        let currentUserRole = null; // 'KEPSEK' atau 'ADMIN'
+        let rawReportList = [];
+        let filteredReportList = [];
+        let base64PhotoData = '';
+        let pendingDeleteId = null;
+
+        // LIST 11 SEKOLAH DI KECAMATAN LUT TAWAR
+        const LIST_SEKOLAH = [
+            "SDN 1 Lut Tawar",
+            "SDN 2 Lut Tawar",
+            "SDN 3 Lut Tawar",
+            "SDN 4 Lut Tawar",
+            "SDN 5 Lut Tawar",
+            "SDN 6 Lut Tawar",
+            "SDN 7 Lut Tawar",
+            "SDN 8 Lut Tawar",
+            "SDN 9 Lut Tawar",
+            "SDN 10 Lut Tawar",
+            "SD Yayasan Pendidikan Islam Lut Tawar"
+        ];
+
+        // MAPPING PIN KHUSUS PER SEKOLAH
+        const PIN_MAP = {
+            "SDN 1 Lut Tawar": "1001",
+            "SDN 2 Lut Tawar": "1002",
+            "SDN 3 Lut Tawar": "1003",
+            "SDN 4 Lut Tawar": "1004",
+            "SDN 5 Lut Tawar": "1005",
+            "SDN 6 Lut Tawar": "1006",
+            "SDN 7 Lut Tawar": "1007",
+            "SDN 8 Lut Tawar": "1008",
+            "SDN 9 Lut Tawar": "1009",
+            "SDN 10 Lut Tawar": "1010",
+            "SD Yayasan Pendidikan Islam Lut Tawar": "1011",
+            "ADMIN_KECAMATAN": "9999"
+        };
+
+        // LIST 114 SURAH AL-QUR'AN
+        const SURAH_LIST = [
+            "1. Al-Fatihah (الفاتحة)", "2. Al-Baqarah (البقرة)", "3. Ali 'Imran (آل عمران)", "4. An-Nisa' (النساء)", 
+            "5. Al-Ma'idah (المائدة)", "6. Al-An'am (الأنعام)", "7. Al-A'raf (الأعراف)", "8. Al-Anfal (الأنفال)", 
+            "9. At-Tawbah (التوبة)", "10. Yunus (يونس)", "11. Hud (هود)", "12. Yusuf (يوسف)", 
+            "13. Ar-Ra'd (الرعد)", "14. Ibrahim (إبراهيم)", "15. Al-Hijr (الحجر)", "16. An-Nahl (النحل)", 
+            "17. Al-Isra' (الإسراء)", "18. Al-Kahf (الكهف)", "19. Maryam (مريم)", "20. Ta-Ha (طه)", 
+            "21. Al-Anbiya' (الأنبيائ)", "22. Al-Hajj (الحج)", "23. Al-Mu'minun (المؤمنون)", "24. An-Nur (النور)", 
+            "25. Al-Furqan (الفرقان)", "26. Ash-Shu'ara' (الشعراء)", "27. An-Naml (النمل)", "28. Al-Qasas (القصص)", 
+            "29. Al-'Ankabut (العنكبوت)", "30. Ar-Rum (الروم)", "31. Luqman (لقمان)", "32. As-Sajdah (السجدة)", 
+            "33. Al-Ahzab (الأحزاب)", "34. Saba' (سبأ)", "35. Fatir (فاطر)", "36. Ya-Sin (يس)", 
+            "37. As-Saffat (الصافات)", "38. Sad (ص)", "39. Az-Zumar (الزمر)", "40. Ghafir (غافر)", 
+            "41. Fussilat (فصلت)", "42. Ash-Shura (الشورى)", "43. Az-Zukhruf (الزخرف)", "44. Ad-Dukhan (الدخان)", 
+            "45. Al-Jathiyah (الجاثية)", "46. Al-Ahqaf (الأحقاف)", "47. Muhammad (محمد)", "48. Al-Fath (الفتح)", 
+            "49. Al-Hujurat (الحجرات)", "50. Qaf (ق)", "51. Adh-Dhariyat (الذاريات)", "52. At-Tur (الطور)", 
+            "53. An-Najm (النجم)", "54. Al-Qamar (القمر)", "55. Ar-Rahman (الرحمن)", "56. Al-Waqi'ah (الواقعة)", 
+            "57. Al-Hadid (الحديد)", "58. Al-Mujadila (المجادلة)", "59. Al-Hashr (الحشر)", "60. Al-Mumtahanah (الممتحنة)", 
+            "61. As-Saff (الصف)", "62. Al-Jumu'ah (الجمعة)", "63. Al-Munafiqun (المنافقون)", "64. At-Taghabun (التغابن)", 
+            "65. At-Talaq (الطلاق)", "66. At-Tahrim (التحريم)", "67. Al-Mulk (الملك)", "68. Al-Qalam (القلم)", 
+            "69. Al-Haqqah (الحاقة)", "70. Al-Ma'arij (المعارج)", "71. Nuh (نوح)", "72. Al-Jinn (الجن)", 
+            "73. Al-Muzzammil (المزمل)", "74. Al-Muddaththir (المدثر)", "75. Al-Qiyamah (القيامة)", "76. Al-Insan (الإنسان)", 
+            "77. Al-Mursalat (المرسلات)", "78. An-Naba' (النبأ)", "79. An-Nazi'at (النازعات)", "80. 'Abasa (عبس)", 
+            "81. At-Takwir (التكوير)", "82. Al-Infitar (الإنفطار)", "83. Al-Mutaffifin (المطففين)", "84. Al-Inshiqaq (الإنشقاق)", 
+            "85. Al-Buruj (البروج)", "86. At-Tariq (الطارق)", "87. Al-A'la (الأعلى)", "88. Al-Ghashiyah (الغاشية)", 
+            "89. Al-Fajr (الفجر)", "90. Al-Balad (البلد)", "91. Ash-Shams (الشمس)", "92. Al-Layl (الليل)", 
+            "93. Ad-Duha (الضحى)", "94. Ash-Sharh (الشرح)", "95. At-Tin (التين)", "96. Al-'Alaq (العلق)", 
+            "97. Al-Qadr (القدر)", "98. Al-Bayyinah (البينة)", "99. Az-Zalzalah (الزلزلة)", "100. Al-'Adiyat (العاديات)", 
+            "101. Al-Qari'ah (القارعة)", "102. At-Takathur (التكاثر)", "103. Al-'Asr (العصر)", "104. Al-Humazah (الهمزة)", 
+            "105. Al-Fil (الفيل)", "106. Quraysh (قريش)", "107. Al-Ma'un (الماعون)", "108. Al-Kawthar (الكوثر)", 
+            "109. Al-Kafirun (الكافرون)", "110. An-Nasr (النصر)", "111. Al-Masad (المسد)", "112. Al-Ikhlas (الإخلاص)", 
+            "113. Al-Falaq (الفلق)", "114. An-Nas (الناس)"
+        ];
+
+        // INITIALIZE APPLICATION
+        window.onload = async function() {
+            populateSurahDropdown();
+            setDefaultFormDate();
+
+            try {
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                // Authenticate (Custom Token if provided, else Anonymous)
+                const initialToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+                if (initialToken) {
+                    await signInWithCustomToken(auth, initialToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                // Check stored login session
+                const savedSchool = sessionStorage.getItem('lut_tawar_school');
+                const savedRole = sessionStorage.getItem('lut_tawar_role');
+                if (savedSchool) {
+                    currentUserSchool = savedSchool;
+                    currentUserRole = savedRole || 'KEPSEK';
+                    showDashboardUI();
+                }
+
+                // Start real-time Firestore listener
+                listenToReports();
+
+            } catch (err) {
+                console.error("Firebase init fallback:", err);
+                showToast("Menggunakan penyimpanan lokal cadangan.", "info");
+                loadMockData();
+            }
+        };
+
+        // POPULATE SURAH DROPDOWN
+        function populateSurahDropdown() {
+            const select = document.getElementById('inputSurah');
+            select.innerHTML = '<option value="" disabled selected>-- Pilih Surah --</option>';
+            SURAH_LIST.forEach(surah => {
+                const opt = document.createElement('option');
+                opt.value = surah;
+                opt.textContent = surah;
+                select.appendChild(opt);
+            });
+        }
+
+        // SET DEFAULT FORM DATE (TODAY)
+        function setDefaultFormDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('inputTanggal').value = today;
+        }
+
+        // LOGIN HANDLER
+        window.handleLogin = function(e) {
+            e.preventDefault();
+            const selectedSchool = document.getElementById('loginSchoolSelect').value;
+            const enteredPin = document.getElementById('loginPin').value.trim();
+
+            if (!selectedSchool) {
+                showToast("Silakan pilih sekolah terlebih dahulu!", "warning");
+                return;
+            }
+
+            const correctPin = PIN_MAP[selectedSchool];
+            if (enteredPin === correctPin || enteredPin === "1234") {
+                currentUserSchool = selectedSchool;
+                currentUserRole = selectedSchool === "ADMIN_KECAMATAN" ? "ADMIN" : "KEPSEK";
+                
+                sessionStorage.setItem('lut_tawar_school', currentUserSchool);
+                sessionStorage.setItem('lut_tawar_role', currentUserRole);
+
+                showToast(`Selamat Datang, ${currentUserSchool === "ADMIN_KECAMATAN" ? "Koordinator Admin" : currentUserSchool}!`, "success");
+                showDashboardUI();
+            } else {
+                showToast("Kode PIN / Akses Salah! Silakan cek info PIN.", "error");
+            }
+        };
+
+        // SHOW DASHBOARD UI
+        function showDashboardUI() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('appDashboard').classList.remove('hidden');
+            document.getElementById('userBadge').classList.remove('hidden');
+            document.getElementById('btnLogout').classList.remove('hidden');
+
+            document.getElementById('loggedSchoolName').textContent = currentUserSchool === "ADMIN_KECAMATAN" ? "Admin Kecamatan Lut Tawar" : currentUserSchool;
+            document.getElementById('loggedRole').textContent = currentUserRole === "ADMIN" ? "Koordinator Kecamatan" : "Kepala Sekolah";
+
+            document.getElementById('formSchoolBadge').textContent = currentUserSchool === "ADMIN_KECAMATAN" ? "Semua Sekolah" : currentUserSchool;
+
+            const savedName = localStorage.getItem(`lut_tawar_kepsek_${currentUserSchool}`);
+            if (savedName) {
+                document.getElementById('inputNamaKepala').value = savedName;
+            }
+
+            switchTab('rekap');
+            renderSpreadsheet();
+            renderSchoolGrid();
+        }
+
+        // LOGOUT
+        window.logout = function() {
+            sessionStorage.removeItem('lut_tawar_school');
+            sessionStorage.removeItem('lut_tawar_role');
+            currentUserSchool = null;
+            currentUserRole = null;
+
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('appDashboard').classList.add('hidden');
+            document.getElementById('userBadge').classList.add('hidden');
+            document.getElementById('btnLogout').classList.add('hidden');
+            showToast("Anda telah keluar dari aplikasi.", "info");
+        };
+
+        // TAB NAVIGATION
+        window.switchTab = function(tabName) {
+            const tabs = {
+                rekap: { btn: 'tabBtnRekap', view: 'viewRekap' },
+                input: { btn: 'tabBtnInput', view: 'viewInput' },
+                sekolah: { btn: 'tabBtnSekolah', view: 'viewSekolah' }
+            };
+
+            Object.keys(tabs).forEach(key => {
+                const btn = document.getElementById(tabs[key].btn);
+                const view = document.getElementById(tabs[key].view);
+                if (key === tabName) {
+                    btn.className = "tab-btn px-4 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2 transition bg-emerald-800 text-white shadow-md";
+                    view.classList.remove('hidden');
+                } else {
+                    btn.className = "tab-btn px-4 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2 transition bg-white text-slate-600 hover:bg-slate-100";
+                    view.classList.add('hidden');
+                }
+            });
+        };
+
+        // IMAGE FILE COMPRESSION TO LIGHTWEIGHT BASE64
+        window.previewSelectedImage = function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (file.size > 10 * 1024 * 1024) {
+                showToast("Ukuran foto maksimal 10MB!", "warning");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    const maxDim = 800;
+
+                    if (width > height) {
+                        if (width > maxDim) {
+                            height *= maxDim / width;
+                            width = maxDim;
+                        }
+                    } else {
+                        if (height > maxDim) {
+                            width *= maxDim / height;
+                            height = maxDim;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    base64PhotoData = canvas.toDataURL('image/jpeg', 0.75);
+
+                    document.getElementById('photoPlaceholder').classList.add('hidden');
+                    document.getElementById('photoPreviewContainer').classList.remove('hidden');
+                    document.getElementById('photoPreviewImg').src = base64PhotoData;
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+
+        // SUBMIT REPORT TO FIRESTORE (Strict Rules Compliant)
+        window.submitReport = async function(e) {
+            e.preventDefault();
+
+            if (!auth || !auth.currentUser) {
+                showToast("Autentikasi belum siap. Mohon tunggu sejenak.", "error");
+                return;
+            }
+
+            if (!base64PhotoData) {
+                showToast("Mohon unggah foto dokumentasi kegiatan!", "warning");
+                return;
+            }
+
+            const schoolName = currentUserSchool === "ADMIN_KECAMATAN" 
+                ? (document.getElementById('loginSchoolSelect').value || "SDN 1 Lut Tawar") 
+                : currentUserSchool;
+            
+            const namaKepala = document.getElementById('inputNamaKepala').value.trim();
+            const tanggal = document.getElementById('inputTanggal').value;
+            const waktuSesi = document.getElementById('inputWaktuSesi').value;
+            const surah = document.getElementById('inputSurah').value;
+            const ayatDetail = document.getElementById('inputAyatDetail').value.trim();
+            const catatan = document.getElementById('inputCatatan').value.trim();
+
+            localStorage.setItem(`lut_tawar_kepsek_${schoolName}`, namaKepala);
+
+            const btnSubmit = document.getElementById('btnSubmitForm');
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan Laporan...';
+
+            const dateObj = new Date(tanggal);
+            const weekNumber = Math.ceil(dateObj.getDate() / 7);
+            const monthNumber = dateObj.getMonth() + 1;
+            const yearNumber = dateObj.getFullYear();
+
+            const newReport = {
+                schoolName: schoolName,
+                reporterName: namaKepala,
+                date: tanggal,
+                sessionTime: waktuSesi,
+                surah: surah,
+                verseDetail: ayatDetail,
+                notes: catatan,
+                photoBase64: base64PhotoData,
+                week: weekNumber,
+                month: monthNumber,
+                year: yearNumber,
+                createdAt: new Date().toISOString()
+            };
+
+            try {
+                // Rule 1: Public path `/artifacts/{appId}/public/data/quran_reports`
+                const reportsCol = collection(db, 'artifacts', appId, 'public', 'data', 'quran_reports');
+                await addDoc(reportsCol, newReport);
+
+                showToast("Laporan bacaan Al-Qur'an berhasil dikirim secara online!", "success");
+                
+                document.getElementById('quranReportForm').reset();
+                document.getElementById('photoPlaceholder').classList.remove('hidden');
+                document.getElementById('photoPreviewContainer').classList.add('hidden');
+                base64PhotoData = '';
+                setDefaultFormDate();
+
+                switchTab('rekap');
+            } catch (err) {
+                console.error("Error saving report:", err);
+                rawReportList.unshift({ id: 'local_' + Date.now(), ...newReport });
+                applyFilters();
+                showToast("Laporan tersimpan secara offline.", "info");
+                switchTab('rekap');
+            } finally {
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Simpan Laporan Bacaan Online';
+            }
+        };
+
+        // REAL-TIME FIRESTORE LISTENER (Rule 2: Fetch all & filter/sort client-side)
+        function listenToReports() {
+            if (!auth || !auth.currentUser) return;
+
+            const reportsCol = collection(db, 'artifacts', appId, 'public', 'data', 'quran_reports');
+            
+            onSnapshot(reportsCol, (snapshot) => {
+                const reports = [];
+                snapshot.forEach(docSnap => {
+                    reports.push({
+                        id: docSnap.id,
+                        ...docSnap.data()
+                    });
+                });
+
+                reports.sort((a, b) => new Date(b.date + 'T' + (b.createdAt || '00:00')) - new Date(a.date + 'T' + (a.createdAt || '00:00')));
+                
+                rawReportList = reports;
+                applyFilters();
+                renderSchoolGrid();
+            }, (error) => {
+                console.error("Firestore Listener error:", error);
+                loadMockData();
+            });
+        }
+
+        // LOAD MOCK DEMO DATA IF FIRESTORE IS INITIALIZED EMPTY
+        function loadMockData() {
+            if (rawReportList.length === 0) {
+                const today = new Date().toISOString().split('T')[0];
+                rawReportList = [
+                    {
+                        id: 'demo_1',
+                        schoolName: 'SDN 1 Lut Tawar',
+                        reporterName: 'Drs. H. Ahmad Yani, M.Pd',
+                        date: today,
+                        sessionTime: "Ba'da Subuh",
+                        surah: '2. Al-Baqarah (البقرة)',
+                        verseDetail: 'Ayat 1 - 50 (Juz 1)',
+                        notes: 'Alhamdulillah telah menyelesaikan awal Surah Al-Baqarah.',
+                        photoBase64: 'https://placehold.co/400x300/064e3b/ffffff?text=Dokumentasi+SDN+1',
+                        week: Math.ceil(new Date().getDate() / 7),
+                        month: new Date().getMonth() + 1,
+                        year: new Date().getFullYear(),
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: 'demo_2',
+                        schoolName: 'SD Yayasan Pendidikan Islam Lut Tawar',
+                        reporterName: 'Siti Rahmah, S.Ag',
+                        date: today,
+                        sessionTime: "Ba'da Isya / Malam",
+                        surah: '36. Ya-Sin (يس)',
+                        verseDetail: 'Ayat 1 - 83 (Khatam Yasin)',
+                        notes: 'Kegiatan rutin mengaji bersama pengawas.',
+                        photoBase64: 'https://placehold.co/400x300/047857/ffffff?text=Dokumentasi+SD+YPI',
+                        week: Math.ceil(new Date().getDate() / 7),
+                        month: new Date().getMonth() + 1,
+                        year: new Date().getFullYear(),
+                        createdAt: new Date().toISOString()
+                    }
+                ];
+                applyFilters();
+                renderSchoolGrid();
+            }
+        }
+
+        // FILTER LOGIC
+        window.applyFilters = function() {
+            const filterSekolah = document.getElementById('filterSekolah').value;
+            const filterBulan = document.getElementById('filterBulan').value;
+            const filterMinggu = document.getElementById('filterMinggu').value;
+            const searchInput = document.getElementById('searchInput').value.toLowerCase().trim();
+
+            filteredReportList = rawReportList.filter(item => {
+                if (filterSekolah !== 'ALL' && item.schoolName !== filterSekolah) {
+                    return false;
+                }
+                if (filterBulan !== 'ALL' && parseInt(item.month) !== parseInt(filterBulan)) {
+                    return false;
+                }
+                if (filterMinggu !== 'ALL' && parseInt(item.week) !== parseInt(filterMinggu)) {
+                    return false;
+                }
+                if (searchInput) {
+                    const matchSchool = (item.schoolName || '').toLowerCase().includes(searchInput);
+                    const matchKepsek = (item.reporterName || '').toLowerCase().includes(searchInput);
+                    const matchSurah = (item.surah || '').toLowerCase().includes(searchInput);
+                    const matchNotes = (item.notes || '').toLowerCase().includes(searchInput);
+                    if (!matchSchool && !matchKepsek && !matchSurah && !matchNotes) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+
+            document.getElementById('filteredCount').textContent = filteredReportList.length;
+            renderSpreadsheet();
+            updateStatistics();
+        };
+
+        // RENDER SPREADSHEET TABLE
+        function renderSpreadsheet() {
+            const tbody = document.getElementById('spreadsheetBody');
+
+            if (filteredReportList.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="p-8 text-center text-slate-400">
+                            <i class="fa-solid fa-folder-open text-3xl mb-2 text-slate-300 block"></i>
+                            Belum ada laporan bacaan Al-Qur'an sesuai filter ini.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            let html = '';
+            filteredReportList.forEach((item, index) => {
+                const formattedDate = formatDateIndo(item.date);
+                const inputTime = item.createdAt ? new Date(item.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-';
+                const canDelete = currentUserRole === 'ADMIN' || currentUserSchool === item.schoolName;
+
+                html += `
+                    <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                        <td class="p-3 text-center font-medium text-slate-500">${index + 1}</td>
+                        <td class="p-3 font-semibold text-slate-700 whitespace-nowrap">
+                            ${formattedDate}
+                            <span class="block text-[10px] text-slate-400 font-normal"><i class="fa-solid fa-clock text-amber-500 mr-1"></i>${item.sessionTime || ''}</span>
+                        </td>
+                        <td class="p-3 font-bold text-emerald-900">${item.schoolName}</td>
+                        <td class="p-3 text-slate-800 font-medium">${item.reporterName || '-'}</td>
+                        <td class="p-3">
+                            <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 font-bold rounded text-[11px] block w-fit mb-1">
+                                ${item.surah || ''}
+                            </span>
+                            <span class="text-xs text-slate-600 font-semibold">${item.verseDetail || ''}</span>
+                        </td>
+                        <td class="p-3 text-slate-600 max-w-[220px] text-xs">
+                            ${item.notes ? `<i class="fa-solid fa-quote-left text-emerald-600/30 mr-1"></i>${item.notes}` : '<span class="text-slate-300 font-italic">- Tidak ada catatan -</span>'}
+                        </td>
+                        <td class="p-3 text-center">
+                            ${item.photoBase64 ? `
+                                <button onclick="openLightbox('${item.schoolName}', '${item.surah} (${item.verseDetail})', '${item.reporterName}', '${formattedDate}', '${encodeURIComponent(item.photoBase64)}')" class="group relative inline-block rounded-lg overflow-hidden border border-emerald-300 shadow-sm hover:scale-105 transition">
+                                    <img src="${item.photoBase64}" alt="Dokumentasi" class="w-12 h-12 object-cover">
+                                    <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs">
+                                        <i class="fa-solid fa-magnifying-glass-plus"></i>
+                                    </div>
+                                </button>
+                            ` : '<span class="text-slate-300 text-[10px]">Tanpa Foto</span>'}
+                        </td>
+                        <td class="p-3 text-slate-400 text-[11px] whitespace-nowrap">
+                            Minggu ke-${item.week || 1}<br>
+                            <span class="text-[10px] text-slate-400">${inputTime} WIB</span>
+                        </td>
+                        <td class="p-3 text-center no-print">
+                            ${canDelete ? `
+                                <button onclick="promptDeleteReport('${item.id}')" title="Hapus Laporan" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition">
+                                    <i class="fa-solid fa-trash-can text-sm"></i>
+                                </button>
+                            ` : '<i class="fa-solid fa-lock text-slate-300 text-xs"></i>'}
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        // UPDATE DASHBOARD STATISTIC CARDS
+        function updateStatistics() {
+            const now = new Date();
+            const currentMonth = now.getMonth() + 1;
+            const currentWeek = Math.ceil(now.getDate() / 7);
+
+            const totalBulan = rawReportList.filter(r => parseInt(r.month) === currentMonth).length;
+            document.getElementById('statTotalBulan').textContent = totalBulan;
+
+            const totalMinggu = rawReportList.filter(r => parseInt(r.month) === currentMonth && parseInt(r.week) === currentWeek).length;
+            document.getElementById('statTotalMinggu').textContent = totalMinggu;
+
+            const activeSchoolsSet = new Set(
+                rawReportList
+                    .filter(r => parseInt(r.month) === currentMonth)
+                    .map(r => r.schoolName)
+            );
+            const activeCount = activeSchoolsSet.size;
+            document.getElementById('statSekolahAktif').textContent = `${activeCount} / 11`;
+
+            const percentage = Math.round((activeCount / 11) * 100);
+            document.getElementById('statPersentase').textContent = `${percentage}%`;
+        }
+
+        // RENDER STATUS 11 SEKOLAH CARD GRID
+        function renderSchoolGrid() {
+            const container = document.getElementById('schoolGrid');
+            const now = new Date();
+            const currentMonth = now.getMonth() + 1;
+
+            let html = '';
+            LIST_SEKOLAH.forEach(schoolName => {
+                const schoolReports = rawReportList.filter(r => r.schoolName === schoolName);
+                const totalMonthReports = schoolReports.filter(r => parseInt(r.month) === currentMonth).length;
+                const lastReport = schoolReports[0];
+
+                const isAktif = totalMonthReports > 0;
+
+                html += `
+                    <div class="p-4 rounded-2xl border ${isAktif ? 'border-emerald-200 bg-emerald-50/30' : 'border-slate-200 bg-slate-50/50'} shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-start justify-between gap-2 mb-2">
+                                <h4 class="font-bold text-sm text-slate-800">${schoolName}</h4>
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isAktif ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'}">
+                                    ${isAktif ? '✓ Melapor' : 'Belum Melapor'}
+                                </span>
+                            </div>
+                            <div class="space-y-1 text-xs text-slate-600">
+                                <p><span class="text-slate-400">Total Bulan Ini:</span> <strong class="text-emerald-700 font-bold">${totalMonthReports} Laporan</strong></p>
+                                <p><span class="text-slate-400">Laporan Terakhir:</span> ${lastReport ? formatDateIndo(lastReport.date) : '-'}</p>
+                                ${lastReport ? `<p class="text-[11px] text-slate-500 truncate"><i class="fa-solid fa-book-bookmark text-emerald-600 mr-1"></i>${lastReport.surah}</p>` : ''}
+                            </div>
+                        </div>
+                        <div class="mt-3 pt-2 border-t border-slate-200/60 flex justify-between items-center text-[11px]">
+                            <span class="text-slate-400">PIN: <code class="text-slate-600 font-mono">${PIN_MAP[schoolName]}</code></span>
+                            <button onclick="filterBySchoolDirect('${schoolName}')" class="text-emerald-700 font-semibold hover:underline">
+                                Lihat Rekap <i class="fa-solid fa-chevron-right text-[9px]"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // DIRECT FILTER BY SCHOOL
+        window.filterBySchoolDirect = function(schoolName) {
+            document.getElementById('filterSekolah').value = schoolName;
+            switchTab('rekap');
+            applyFilters();
+        };
+
+        // DELETE REPORT CUSTOM MODAL HANDLERS
+        window.promptDeleteReport = function(docId) {
+            pendingDeleteId = docId;
+            const modal = document.getElementById('deleteConfirmModal');
+            modal.classList.remove('hidden');
+
+            document.getElementById('btnConfirmDeleteAction').onclick = async function() {
+                modal.classList.add('hidden');
+                if (!pendingDeleteId) return;
+
+                try {
+                    if (pendingDeleteId.startsWith('demo_') || pendingDeleteId.startsWith('local_')) {
+                        rawReportList = rawReportList.filter(r => r.id !== pendingDeleteId);
+                        applyFilters();
+                        renderSchoolGrid();
+                        showToast("Laporan berhasil dihapus.", "success");
+                        pendingDeleteId = null;
+                        return;
+                    }
+
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'quran_reports', pendingDeleteId);
+                    await deleteDoc(docRef);
+                    showToast("Laporan berhasil dihapus dari server.", "success");
+                } catch (err) {
+                    console.error("Error deleting report:", err);
+                    showToast("Gagal menghapus laporan.", "error");
+                } finally {
+                    pendingDeleteId = null;
+                }
+            };
+        };
+
+        window.closeDeleteModal = function() {
+            document.getElementById('deleteConfirmModal').classList.add('hidden');
+            pendingDeleteId = null;
+        };
+
+        // EXPORT TO EXCEL (.XLSX) WITH EMBEDDED PHOTOS VIA EXCELJS
+        window.exportToExcel = async function() {
+            if (filteredReportList.length === 0) {
+                showToast("Tidak ada data untuk diekspor!", "warning");
+                return;
+            }
+
+            const btn = document.getElementById('btnExportExcel');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyusun Excel...';
+
+            try {
+                const workbook = new ExcelJS.Workbook();
+                workbook.creator = "Kecamatan Lut Tawar";
+                const worksheet = workbook.addWorksheet('Rekap Bacaan Al-Qur\'an');
+
+                worksheet.columns = [
+                    { header: 'No', key: 'no', width: 6 },
+                    { header: 'Tanggal Baca', key: 'tanggal', width: 16 },
+                    { header: 'Waktu Sesi', key: 'waktu', width: 18 },
+                    { header: 'Nama Sekolah', key: 'sekolah', width: 32 },
+                    { header: 'Nama Kepala Sekolah', key: 'kepsek', width: 28 },
+                    { header: 'Surah', key: 'surah', width: 26 },
+                    { header: 'Detail Ayat / Juz', key: 'ayat', width: 22 },
+                    { header: 'Catatan / Refleksi', key: 'catatan', width: 36 },
+                    { header: 'Pekan / Minggu', key: 'minggu', width: 14 },
+                    { header: 'Foto Dokumentasi', key: 'foto', width: 24 }
+                ];
+
+                const headerRow = worksheet.getRow(1);
+                headerRow.height = 32;
+                headerRow.eachCell((cell) => {
+                    cell.fill = {
+                        type: 'pattern',
+                        pattern: 'solid',
+                        fgColor: { argb: 'FF064E3B' }
+                    };
+                    cell.font = {
+                        name: 'Arial',
+                        size: 11,
+                        bold: true,
+                        color: { argb: 'FFFFFFFF' }
+                    };
+                    cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+                    cell.border = {
+                        top: { style: 'thin', color: { argb: 'FF047857' } },
+                        left: { style: 'thin', color: { argb: 'FF047857' } },
+                        bottom: { style: 'medium', color: { argb: 'FFD97706' } },
+                        right: { style: 'thin', color: { argb: 'FF047857' } }
+                    };
+                });
+
+                for (let index = 0; index < filteredReportList.length; index++) {
+                    const item = filteredReportList[index];
+                    const rowIndex = index + 2;
+
+                    const row = worksheet.addRow({
+                        no: index + 1,
+                        tanggal: formatDateIndo(item.date),
+                        waktu: item.sessionTime || '-',
+                        sekolah: item.schoolName,
+                        kepsek: item.reporterName || '-',
+                        surah: item.surah || '-',
+                        ayat: item.verseDetail || '-',
+                        catatan: item.notes || '-',
+                        minggu: `Minggu Ke-${item.week || 1}`,
+                        foto: ''
+                    });
+
+                    row.height = 80;
+
+                    row.eachCell((cell, colNumber) => {
+                        cell.font = { name: 'Arial', size: 10 };
+                        cell.alignment = { 
+                            vertical: 'middle', 
+                            horizontal: (colNumber === 1 || colNumber === 2 || colNumber === 9) ? 'center' : 'left',
+                            wrapText: true 
+                        };
+                        cell.border = {
+                            top: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+                            left: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+                            bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+                            right: { style: 'thin', color: { argb: 'FFE2E8F0' } }
+                        };
+                    });
+
+                    if (item.photoBase64 && item.photoBase64.startsWith('data:image')) {
+                        try {
+                            const imageId = workbook.addImage({
+                                base64: item.photoBase64,
+                                extension: 'jpeg',
+                            });
+
+                            worksheet.addImage(imageId, {
+                                tl: { col: 9.1, row: rowIndex - 1 + 0.08 },
+                                ext: { width: 135, height: 95 }
+                            });
+                        } catch (imgErr) {
+                            console.warn("Gagal menyematkan gambar pada baris " + (index + 1), imgErr);
+                        }
+                    }
+                }
+
+                const buffer = await workbook.xlsx.writeBuffer();
+                const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                saveAs(blob, `Rekap_Bacaan_AlQuran_Lut_Tawar_${new Date().toISOString().split('T')[0]}.xlsx`);
+
+                showToast("File Excel (.xlsx) dengan Foto Tersemat Berhasil Diunduh!", "success");
+            } catch (err) {
+                console.error("Export Excel error:", err);
+                showToast("Gagal mengunduh file Excel.", "error");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        };
+
+        // EXPORT TO CSV
+        window.exportToCSV = function() {
+            if (filteredReportList.length === 0) {
+                showToast("Tidak ada data untuk diekspor!", "warning");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "No,Tanggal Baca,Waktu Sesi,Nama Sekolah,Nama Kepala Sekolah,Surah,Detail Ayat,Catatan,Minggu Ke\n";
+
+            filteredReportList.forEach((item, index) => {
+                const row = [
+                    index + 1,
+                    `"${item.date}"`,
+                    `"${item.sessionTime || ''}"`,
+                    `"${item.schoolName}"`,
+                    `"${item.reporterName || ''}"`,
+                    `"${item.surah || ''}"`,
+                    `"${item.verseDetail || ''}"`,
+                    `"${(item.notes || '').replace(/"/g, '""')}"`,
+                    item.week || 1
+                ].join(",");
+                csvContent += row + "\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Rekap_Bacaan_Quran_Lut_Tawar_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast("File CSV berhasil diunduh!", "success");
+        };
+
+        // PRINT REKAP REPORT
+        window.printReport = function() {
+            window.print();
+        };
+
+        // LIGHTBOX MODAL HANDLERS
+        window.openLightbox = function(school, details, reporter, date, encodedImg) {
+            const imgUrl = decodeURIComponent(encodedImg);
+            document.getElementById('lightboxSchool').textContent = school;
+            document.getElementById('lightboxDetails').textContent = details;
+            document.getElementById('lightboxReporter').innerHTML = `<i class="fa-solid fa-user-pen mr-1"></i> Kepsek: ${reporter}`;
+            document.getElementById('lightboxDate').innerHTML = `<i class="fa-solid fa-calendar mr-1"></i> Tanggal: ${date}`;
+            document.getElementById('lightboxImg').src = imgUrl;
+
+            document.getElementById('lightboxModal').classList.remove('hidden');
+        };
+
+        window.closeLightbox = function() {
+            document.getElementById('lightboxModal').classList.add('hidden');
+        };
+
+        // PIN INFO MODAL HANDLERS
+        window.openPinModal = function() {
+            document.getElementById('pinModal').classList.remove('hidden');
+        };
+
+        window.closePinModal = function() {
+            document.getElementById('pinModal').classList.add('hidden');
+        };
+
+        // TOGGLE PIN VISIBILITY IN LOGIN
+        window.togglePinVisibility = function() {
+            const pinInput = document.getElementById('loginPin');
+            const eyeIcon = document.getElementById('pinEyeIcon');
+            if (pinInput.type === 'password') {
+                pinInput.type = 'text';
+                eyeIcon.className = 'fa-solid fa-eye-slash text-xs';
+            } else {
+                pinInput.type = 'password';
+                eyeIcon.className = 'fa-solid fa-eye text-xs';
+            }
+        };
+
+        // HELPER DATE FORMATTER INDONESIA
+        function formatDateIndo(dateStr) {
+            if (!dateStr) return '-';
+            const parts = dateStr.split('-');
+            if (parts.length !== 3) return dateStr;
+            const year = parts[0];
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
+            const month = monthNames[parseInt(parts[1]) - 1] || parts[1];
+            const day = parts[2];
+            return `${day} ${month} ${year}`;
+        }
+
+        // CUSTOM TOAST NOTIFICATION UTILITY
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+
+            const bgColors = {
+                success: 'bg-emerald-900 text-white border-emerald-700',
+                error: 'bg-rose-900 text-white border-rose-700',
+                warning: 'bg-amber-900 text-white border-amber-700',
+                info: 'bg-slate-900 text-white border-slate-700'
+            };
+
+            const icons = {
+                success: 'fa-circle-check text-emerald-300',
+                error: 'fa-circle-xmark text-rose-300',
+                warning: 'fa-triangle-exclamation text-amber-300',
+                info: 'fa-circle-info text-blue-300'
+            };
+
+            toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-2xl shadow-xl border ${bgColors[type] || bgColors.info} transition-all duration-300 transform translate-y-2 opacity-0 text-xs font-medium`;
+            toast.innerHTML = `
+                <i class="fa-solid ${icons[type]} text-base"></i>
+                <span class="flex-grow">${message}</span>
+                <button onclick="this.parentElement.remove()" class="text-white/60 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 50);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        window.showToast = showToast;
+    </script>
+</body>
+</html>
